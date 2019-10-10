@@ -1,5 +1,3 @@
-MAKEFLAGS += --silent
-THIS_FILE := $(lastword $(MAKEFILE_LIST))
 
 .PHONY: help init apply deploy remove clean destroy dns_edit dns_revert
 
@@ -21,6 +19,9 @@ apply:
 	@cd terraform/alb; terraform apply -auto-approve && cd $$OLDPWD
 	@cd terraform/asg; terraform apply -auto-approve && cd $$OLDPWD
 
+dns_edit:
+	@sudo bash -c 'echo "$$(dig +short $$(cd terraform/alb && terraform output | grep alb | cut -d "=" -f2 | xargs) | head -n 1) my-nginx.internal" >> /etc/hosts'
+
 deploy: init apply dns_edit
 
 remove:
@@ -31,18 +32,9 @@ remove:
 	@cd terraform/subnets; terraform destroy -auto-approve && $$OLDPWD
 
 clean:
-	@cd terraform/asg; rm -rf .terraform && cd $$OLDPWD
-	@cd terraform/alb; rm -rf .terraform && cd $$OLDPWD
-	@cd terraform/route53; rm -rf .terraform && cd $$OLDPWD
-	@cd terraform/security-groups; rm -rf .terraform && cd $$OLDPWD
-	@cd terraform/subnets; rm -rf .terraform && cd $$OLDPWD
-
-destroy: remove clean dns_revert
-
-dns_edit:
-	sudo bash -c ' \
-	echo "$$(dig +short $$(cd terraform/alb && terraform output | grep alb | cut -d "=" -f2 | xargs) | head -n 1) my-nginx.internal" \
-	>> /etc/hosts'
+	@find . -name ".terraform" -type d -exec rm -r {} +
 
 dns_revert:
-	sudo bash -c 'sed -i "/my-nginx.internal/d" /etc/hosts'
+	@sudo bash -c 'sed -i "/my-nginx.internal/d" /etc/hosts'
+
+destroy: remove clean dns_revert
