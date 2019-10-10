@@ -3,7 +3,9 @@
 
 help:
 	@echo "Run \033[1m'make deploy'\e[0m to deploy project"
+	@echo "Run \033[1m'make dns_edit'\e[0m to add my-nginx.internal to /etc/hosts"
 	@echo "Run \033[1m'make destroy'\e[0m to delete project"
+	@@echo "Run \033[1m'make dns_revert'\e[0m to revert /etc/hosts state"
 
 init:
 	@cd terraform/subnets; terraform init && cd $$OLDPWD
@@ -22,7 +24,7 @@ apply:
 dns_edit:
 	@sudo bash -c 'echo "$$(dig +short $$(cd terraform/alb && terraform output | grep alb | cut -d "=" -f2 | xargs) | head -n 1) my-nginx.internal" >> /etc/hosts'
 
-deploy: init apply dns_edit
+deploy: init apply
 
 remove:
 	@cd terraform/asg; terraform destroy -auto-approve && cd $$OLDPWD
@@ -37,4 +39,4 @@ clean:
 dns_revert:
 	@sudo bash -c 'sed -i "/my-nginx.internal/d" /etc/hosts'
 
-destroy: remove clean dns_revert
+destroy: remove clean
