@@ -31,7 +31,7 @@ remove:
 	@cd terraform/alb; terraform destroy -auto-approve && cd $$OLDPWD
 	@cd terraform/route53; terraform destroy -auto-approve && cd $$OLDPWD
 	@cd terraform/security-groups; terraform destroy -auto-approve && cd $$OLDPWD
-	@cd terraform/subnets; terraform destroy -auto-approve && $$OLDPWD
+	@cd terraform/subnets; terraform destroy -auto-approve && cd $$OLDPWD
 
 clean:
 	@find . -name ".terraform" -type d -exec rm -r {} +
