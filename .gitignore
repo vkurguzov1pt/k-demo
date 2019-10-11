@@ -2,8 +2,3 @@
 .terraform
 tfplan
 
-# Certificate folder
-terraform/cert/*
-.crt
-.csr
-.pem
