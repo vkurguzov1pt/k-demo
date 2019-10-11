@@ -1,5 +1,6 @@
 ## k-demo project
 
+user ***eu-central-1*** region in aws config
 use ***make*** or ***make help*** to list available commands
 
 ------------------------------------
